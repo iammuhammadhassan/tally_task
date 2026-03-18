@@ -73,8 +73,20 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
+  fonts:
+   - family: Pacifico
+     fonts:
+       - asset: fonts/pacifico/Pacifico-Regular.ttf
+
+  
+   - family: Noto
+     fonts:
+       - asset: fonts/Noto_Serif/NotoSerif-Italic-VariableFont_wdth,wght.ttf
+
+   - family: Noto2
+     fonts:
+       - asset: fonts/Noto_Serif/NotoSerif-VariableFont_wdth,wght.ttf
+    
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf

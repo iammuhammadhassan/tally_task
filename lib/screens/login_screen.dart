@@ -13,6 +13,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -35,43 +36,56 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Image(
-                            image: AssetImage('assets/planning.png'),
-                            height: 100,
-                          ),
-                          SizedBox(width: 20),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              
-                              Text("Tally Task",
-                                  style: TextStyle(
-                                      color: const Color.fromARGB(255, 163, 214, 248),
-                                      fontSize: 40,
-                                      fontWeight: FontWeight.bold)),
-                              Text("Tally Task - Count What Matters",
-                                  style: TextStyle(
-                                      color: const Color.fromARGB(255, 70, 0, 52),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold)),
-                            ],
-                          )
-                        ],
-                      ),
-                    
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Image(
+                          image: AssetImage('assets/planning.png'),
+                          height: 100,
+                        ),
+                        SizedBox(width: 20),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Tally Task",
+                              style: TextStyle(
+                                fontFamily: 'Pacifico',
+                                color: const Color.fromARGB(255, 163, 214, 248),
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              "Count What Matters",
+                              style: TextStyle(
+                                fontFamily: "Noto2",
+                                color: const Color.fromARGB(255, 70, 0, 52),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
 
                     SizedBox(height: 60),
                     Text(
                       "E-MAIL",
-                      style: TextStyle(color: Colors.white, fontSize: 15),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontFamily: 'Noto2',
+                      ),
                     ),
+                    SizedBox(height: 5),
                     TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.email),
                         labelText: 'Enter your email',
+                        labelStyle: TextStyle(fontFamily: "Noto2"),
                         border: OutlineInputBorder(),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
@@ -91,13 +105,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(height: 20),
                     Text(
                       "PASSWORD",
-                      style: TextStyle(color: Colors.white, fontSize: 15),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontFamily: 'Noto2',
+                      ),
                     ),
+                    SizedBox(height: 5),
                     TextFormField(
-                      obscureText: true,
+                      obscureText: _obscureText,
                       controller: _passwordController,
                       decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureText
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                        ),
+                        prefixIcon: Icon(Icons.lock),
                         labelText: 'Enter your password',
+                        labelStyle: TextStyle(fontFamily: 'Noto2'),
                         border: OutlineInputBorder(),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
@@ -110,6 +143,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
+                    SizedBox(height: 15),
+
+                    Text(
+                      "Forgot Password?",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontFamily: 'Noto2',
+                      ),
+                    ),
+
                     SizedBox(height: 40),
                     Center(
                       child: ElevatedButton(
@@ -130,6 +174,30 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                         child: Text("Login", style: TextStyle(fontSize: 20)),
                       ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Don't have an account?",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Noto2',
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            // Navigate to registration screen
+                          },
+                          child: Text(
+                            "Sign Up",
+                            style: TextStyle(
+                              fontFamily: 'Noto',
+                              color: const Color.fromARGB(255, 238, 15, 15),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
