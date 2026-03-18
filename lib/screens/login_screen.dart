@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -33,18 +35,43 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Image(
+                            image: AssetImage('assets/planning.png'),
+                            height: 100,
+                          ),
+                          SizedBox(width: 20),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              
+                              Text("Tally Task",
+                                  style: TextStyle(
+                                      color: const Color.fromARGB(255, 163, 214, 248),
+                                      fontSize: 40,
+                                      fontWeight: FontWeight.bold)),
+                              Text("Tally Task - Count What Matters",
+                                  style: TextStyle(
+                                      color: const Color.fromARGB(255, 70, 0, 52),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold)),
+                            ],
+                          )
+                        ],
+                      ),
+                    
+
+                    SizedBox(height: 60),
                     Text(
                       "E-MAIL",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        
-                      ),
+                      style: TextStyle(color: Colors.white, fontSize: 15),
                     ),
                     TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(
-                        labelText: 'Email',
+                        labelText: 'Enter your email',
                         border: OutlineInputBorder(),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
@@ -64,17 +91,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(height: 20),
                     Text(
                       "PASSWORD",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        
-                      ),
+                      style: TextStyle(color: Colors.white, fontSize: 15),
                     ),
                     TextFormField(
                       obscureText: true,
                       controller: _passwordController,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: 'Enter your password',
                         border: OutlineInputBorder(),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
@@ -105,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             print("Password: ${_passwordController.text}");
                           }
                         },
-                        child: Text("Login"),
+                        child: Text("Login", style: TextStyle(fontSize: 20)),
                       ),
                     ),
                   ],
