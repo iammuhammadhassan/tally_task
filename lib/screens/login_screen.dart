@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:tally_task/screens/homePage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,12 +23,12 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        
+
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
               const Color.fromARGB(255, 141, 2, 196),
-            
+
               const Color.fromARGB(255, 1, 40, 92),
               const Color.fromARGB(255, 10, 4, 65),
               const Color.fromARGB(255, 70, 0, 52),
@@ -91,6 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     SizedBox(height: 5),
                     TextFormField(
+                      style: TextStyle(color: Colors.white, fontFamily: "Noto2",fontSize: 18),
                       controller: _emailController,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.email),
@@ -123,9 +125,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     SizedBox(height: 5),
                     TextFormField(
+                      style: TextStyle(color: Colors.white, fontFamily: "Noto2",fontSize: 18),
+                      
                       obscureText: _obscureText,
                       controller: _passwordController,
                       decoration: InputDecoration(
+                        
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscureText
@@ -140,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         prefixIcon: Icon(Icons.lock),
                         labelText: 'Enter your password',
-                        labelStyle: TextStyle(fontFamily: 'Noto2'),
+                        labelStyle: TextStyle(fontFamily: 'Noto2',),
                         border: OutlineInputBorder(),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
@@ -178,8 +183,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            print("Email: ${_emailController.text}");
-                            print("Password: ${_passwordController.text}");
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Homepage(),
+                              ),
+                            );
                           }
                         },
                         child: Text(

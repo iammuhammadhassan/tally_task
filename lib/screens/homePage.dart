@@ -22,81 +22,170 @@ class Homepage extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  "Welcome to Tally Task",
-                  style: TextStyle(
-                    fontFamily: 'Pacifico',
-                    color: const Color.fromARGB(255, 163, 214, 248),
-                    fontSize: 35,
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20.0),
-                  margin: const EdgeInsets.symmetric(horizontal: 20.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white24),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Task Pending: 10",
-                                style: TextStyle(
-                                  fontFamily: 'Noto2',
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              Text(
-                                "Task Completed: 8",
-                                style: TextStyle(
-                                  fontFamily: 'Noto2',
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
-                              ),
 
-                              Text(
-                                "Weekly Progress: 80%",
-                                style: TextStyle(
-                                  fontFamily: 'Noto2',
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            width: 60,
-                            height: 60,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              value: 0.80,
-                              strokeWidth: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+        child: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                "Welcome to Tally Task",
+                style: TextStyle(
+                  fontFamily: 'Pacifico',
+                  color: const Color.fromARGB(255, 163, 214, 248),
+                  fontSize: 35,
                 ),
-              ],
-            ),
+              ),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20.0),
+                margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Task Pending: 10",
+                              style: TextStyle(
+                                fontFamily: 'Noto2',
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                            Text(
+                              "Task Completed: 8",
+                              style: TextStyle(
+                                fontFamily: 'Noto2',
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+
+                            Text(
+                              "Weekly Progress: 80%",
+                              style: TextStyle(
+                                fontFamily: 'Noto2',
+                                color: Colors.white,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Stack(
+                          alignment:
+                              Alignment.center, // Keeps the text in the middle
+                          children: [
+                            SizedBox(
+                              width:
+                                  80, // Increased slightly to give text more room
+                              height: 80,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                value: 0.80,
+                                strokeWidth: 12,
+                              ),
+                            ),
+                            Text(
+                              "80%",
+                              style: TextStyle(
+                                fontFamily: 'Noto2',
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigation logic here
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 163, 214, 248),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 25,
+                        vertical: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image(
+                          image: AssetImage('assets/task.png'),
+                          width: 80,
+                          height: 80,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "My Tasks",
+                          style: TextStyle(
+                            fontFamily: 'Noto2',
+                            color: const Color.fromARGB(255, 70, 0, 52),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigation logic here
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 163, 214, 248),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 25,
+                        vertical: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image(
+                          image: AssetImage('assets/counter.png'),
+                          width: 80,
+                          height: 80,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Counter",
+                          style: TextStyle(
+                            fontFamily: 'Noto2',
+                            color: const Color.fromARGB(255, 70, 0, 52),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
