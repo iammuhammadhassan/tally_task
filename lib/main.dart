@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tally_task/screens/homePage.dart';
 import 'package:tally_task/screens/login_screen.dart';
 
 void main() {
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoginScreen(),
+      home: Homepage(),
     );
   }
 }

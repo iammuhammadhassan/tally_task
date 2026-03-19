@@ -18,10 +18,20 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue, Colors.purple],
+            colors: [
+              const Color.fromARGB(255, 141, 2, 196),
+            
+              const Color.fromARGB(255, 1, 40, 92),
+              const Color.fromARGB(255, 10, 4, 65),
+              const Color.fromARGB(255, 70, 0, 52),
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -172,7 +182,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             print("Password: ${_passwordController.text}");
                           }
                         },
-                        child: Text("Login", style: TextStyle(fontSize: 20)),
+                        child: Text(
+                          "Login",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: "Noto2",
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                     Row(
