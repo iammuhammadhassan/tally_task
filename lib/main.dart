@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tally_task/screens/homePage.dart';
+import 'package:tally_task/screens/counter.dart';
+
+// ignore: unused_import
 import 'package:tally_task/screens/login_screen.dart';
 
 void main() {

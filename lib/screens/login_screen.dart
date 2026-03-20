@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:tally_task/screens/homePage.dart';
+import 'package:tally_task/screens/home_page.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -55,28 +55,30 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 100,
                         ),
                         SizedBox(width: 20),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Tally Task",
-                              style: TextStyle(
-                                fontFamily: 'Pacifico',
-                                color: const Color.fromARGB(255, 163, 214, 248),
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Tally Task",
+                                style: TextStyle(
+                                  fontFamily: 'Pacifico',
+                                  color: const Color.fromARGB(255, 163, 214, 248),
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            Text(
-                              "Count What Matters",
-                              style: TextStyle(
-                                fontFamily: "Noto2",
-                                color: const Color.fromARGB(255, 70, 0, 52),
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                              Text(
+                                "Count What Matters",
+                                style: TextStyle(
+                                  fontFamily: "Noto2",
+                                  color: const Color.fromARGB(255, 204, 55, 167),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),

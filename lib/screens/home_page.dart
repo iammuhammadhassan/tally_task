@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tally_task/screens/counter.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -40,6 +41,7 @@ class Homepage extends StatelessWidget {
                 padding: const EdgeInsets.all(20.0),
                 margin: const EdgeInsets.symmetric(horizontal: 20.0),
                 decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.white24),
@@ -49,36 +51,38 @@ class Homepage extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Task Pending: 10",
-                              style: TextStyle(
-                                fontFamily: 'Noto2',
-                                color: Colors.white,
-                                fontSize: 18,
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Task Pending: 10",
+                                style: TextStyle(
+                                  fontFamily: 'Noto2',
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                            Text(
-                              "Task Completed: 8",
-                              style: TextStyle(
-                                fontFamily: 'Noto2',
-                                color: Colors.white,
-                                fontSize: 18,
+                              Text(
+                                "Task Completed: 8",
+                                style: TextStyle(
+                                  fontFamily: 'Noto2',
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
 
-                            Text(
-                              "Weekly Progress: 80%",
-                              style: TextStyle(
-                                fontFamily: 'Noto2',
-                                color: Colors.white,
-                                fontSize: 20,
+                              Text(
+                                "Weekly Progress: 80%",
+                                style: TextStyle(
+                                  fontFamily: 'Noto2',
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         Stack(
                           alignment:
@@ -150,7 +154,12 @@ class Homepage extends StatelessWidget {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      // Navigation logic here
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Counter(),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 163, 214, 248),
