@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class Counter extends StatefulWidget {
@@ -33,13 +35,15 @@ class _CounterState extends State<Counter> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                "Tally Counter ",
-                style: TextStyle(
-                  fontFamily: 'Noto2',
-                  color: const Color.fromARGB(255, 163, 214, 248),
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold,
+              Center(
+                child: Text(
+                  "Tally Counter ",
+                  style: TextStyle(
+                    fontFamily: 'Noto2',
+                    color: const Color.fromARGB(255, 163, 214, 248),
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               SizedBox(height: 40),

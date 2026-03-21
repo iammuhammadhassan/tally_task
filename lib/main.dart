@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tally_task/screens/counter.dart';
+
 
 // ignore: unused_import
 import 'package:tally_task/screens/login_screen.dart';
@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: LoginScreen(),
     );
   }
