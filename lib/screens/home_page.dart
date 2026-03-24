@@ -1,8 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:tally_task/models/task_model.dart';
 import 'package:tally_task/screens/counter.dart';
+import 'package:tally_task/screens/tasks_screen.dart';
 
-class Homepage extends StatelessWidget {
+class Homepage extends StatefulWidget {
   const Homepage({super.key});
+
+  @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+  List<TaskItem> _tasks = <TaskItem>[];
+
+  int get _pendingCount {
+    return _tasks
+        .where((TaskItem task) => task.status != TaskStatus.done)
+        .length;
+  }
+
+  int get _completedCount {
+    return _tasks
+        .where((TaskItem task) => task.status == TaskStatus.done)
+        .length;
+  }
+
+  double get _progressValue {
+    if (_tasks.isEmpty) {
+      return 0;
+    }
+    return _completedCount / _tasks.length;
+  }
+
+  int get _progressPercent {
+    return (_progressValue * 100).round();
+  }
+
+  double get _progressCircleSize {
+    return 70 + (_progressValue * 40);
+  }
+
+  Future<void> _openTasks() async {
+    final List<TaskItem>? updatedTasks = await Navigator.push<List<TaskItem>>(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => TasksScreen(initialTasks: _tasks),
+      ),
+    );
+
+    if (updatedTasks == null) {
+      return;
+    }
+
+    setState(() {
+      _tasks = updatedTasks;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +110,7 @@ class Homepage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Task Pending: 10",
+                                'Tasks Added: ${_tasks.length}',
                                 style: TextStyle(
                                   fontFamily: 'Noto2',
                                   color: Colors.white,
@@ -65,7 +118,7 @@ class Homepage extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                "Task Completed: 8",
+                                'Task Pending: $_pendingCount',
                                 style: TextStyle(
                                   fontFamily: 'Noto2',
                                   color: Colors.white,
@@ -74,7 +127,15 @@ class Homepage extends StatelessWidget {
                               ),
 
                               Text(
-                                "Weekly Progress: 80%",
+                                'Task Completed: $_completedCount',
+                                style: TextStyle(
+                                  fontFamily: 'Noto2',
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                'Weekly Progress: $_progressPercent%',
                                 style: TextStyle(
                                   fontFamily: 'Noto2',
                                   color: Colors.white,
@@ -89,17 +150,16 @@ class Homepage extends StatelessWidget {
                               Alignment.center, // Keeps the text in the middle
                           children: [
                             SizedBox(
-                              width:
-                                  80, // Increased slightly to give text more room
-                              height: 80,
+                              width: _progressCircleSize,
+                              height: _progressCircleSize,
                               child: CircularProgressIndicator(
                                 color: Colors.white,
-                                value: 0.80,
+                                value: _progressValue,
                                 strokeWidth: 12,
                               ),
                             ),
                             Text(
-                              "80%",
+                              '$_progressPercent%',
                               style: TextStyle(
                                 fontFamily: 'Noto2',
                                 color: Colors.white,
@@ -119,7 +179,7 @@ class Homepage extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // Navigation logic here
+                      _openTasks();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 163, 214, 248),
