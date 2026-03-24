@@ -103,6 +103,7 @@ class _TasksScreenState extends State<TasksScreen> {
                         ),
                         const SizedBox(height: 12),
                         DropdownButtonFormField<TaskStatus>(
+                          // ignore: deprecated_member_use
                           value: selectedStatus,
                           decoration: const InputDecoration(
                             labelText: 'Status',
@@ -288,81 +289,85 @@ class _TasksScreenState extends State<TasksScreen> {
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 72, 16, 16),
-              child: Column(
-                children: <Widget>[
-                  _buildSummary(),
-                  const SizedBox(height: 12),
-                  TextField(
-                    onChanged: (String value) {
-                      setState(() {
-                        _searchQuery = value;
-                      });
-                    },
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Noto2',
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Search tasks...',
-                      hintStyle: const TextStyle(
-                        color: Colors.white70,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    _buildSummary(),
+                    const SizedBox(height: 12),
+                    TextField(
+                      onChanged: (String value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                      style: const TextStyle(
+                        color: Colors.white,
                         fontFamily: 'Noto2',
                       ),
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        color: Colors.white70,
-                      ),
-                      filled: true,
-                      // ignore: deprecated_member_use
-                      fillColor: Colors.white.withOpacity(0.15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.white24),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.white24),
+                      decoration: InputDecoration(
+                        hintText: 'Search tasks...',
+                        hintStyle: const TextStyle(
+                          color: Colors.white70,
+                          fontFamily: 'Noto2',
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: Colors.white70,
+                        ),
+                        filled: true,
+                        // ignore: deprecated_member_use
+                        fillColor: Colors.white.withOpacity(0.15),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Colors.white24),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Colors.white24),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildFilterChips(),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: AnimatedSwitcher(
+                    const SizedBox(height: 12),
+                    _buildFilterChips(),
+                    const SizedBox(height: 12),
+                    AnimatedSwitcher(
                       duration: const Duration(milliseconds: 260),
                       child: visibleTasks.isEmpty
                           ? _buildEmptyState()
-                          : ListView.separated(
-                              key: ValueKey<int>(visibleTasks.length),
-                              itemCount: visibleTasks.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 10),
-                              itemBuilder: (BuildContext context, int index) {
-                                final TaskItem task = visibleTasks[index];
-                                return Dismissible(
-                                  key: ValueKey<String>(task.id),
-                                  direction: DismissDirection.endToStart,
-                                  onDismissed: (_) => _deleteTask(task),
-                                  background: Container(
-                                    padding: const EdgeInsets.only(right: 20),
-                                    alignment: Alignment.centerRight,
-                                    decoration: BoxDecoration(
-                                      color: Colors.redAccent,
-                                      borderRadius: BorderRadius.circular(16),
+                          : SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.5,
+                              child: ListView.separated(
+                                key: ValueKey<int>(visibleTasks.length),
+                                itemCount: visibleTasks.length,
+                                // ignore: unnecessary_underscores
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 10),
+                                itemBuilder: (BuildContext context, int index) {
+                                  final TaskItem task = visibleTasks[index];
+                                  return Dismissible(
+                                    key: ValueKey<String>(task.id),
+                                    direction: DismissDirection.endToStart,
+                                    onDismissed: (_) => _deleteTask(task),
+                                    background: Container(
+                                      padding: const EdgeInsets.only(right: 20),
+                                      alignment: Alignment.centerRight,
+                                      decoration: BoxDecoration(
+                                        color: Colors.redAccent,
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: const Icon(
+                                        Icons.delete,
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                    child: const Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  child: _buildTaskCard(task),
-                                );
-                              },
+                                    child: _buildTaskCard(task),
+                                  );
+                                },
+                              ),
                             ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
