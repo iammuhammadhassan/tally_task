@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-
-
-// ignore: unused_import
 import 'package:tally_task/screens/login_screen.dart';
 
 void main() {
@@ -15,7 +12,21 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 141, 2, 196),
+        ),
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: <TargetPlatform, PageTransitionsBuilder>{
+            TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
+            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
+          },
+        ),
+      ),
+      home: const LoginScreen(),
     );
   }
 }

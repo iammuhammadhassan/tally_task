@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tally_task/models/task_model.dart';
+import 'package:tally_task/services/task_storage.dart';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key, this.initialTasks = const <TaskItem>[]});
@@ -25,6 +26,10 @@ class _TasksScreenState extends State<TasksScreen> {
 
   List<TaskItem> _tasksForResult() {
     return _tasks.map((TaskItem task) => TaskItem.fromTask(task)).toList();
+  }
+
+  Future<void> _persistTasks() async {
+    await TaskStorage.saveTasks(_tasksForResult());
   }
 
   List<TaskItem> get _visibleTasks {
@@ -150,6 +155,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       ),
                     );
                   });
+                  _persistTasks();
                   Navigator.pop(context);
                 }
               },
@@ -165,6 +171,7 @@ class _TasksScreenState extends State<TasksScreen> {
     setState(() {
       task.status = newStatus;
     });
+    _persistTasks();
   }
 
   void _deleteTask(TaskItem task) {
@@ -172,6 +179,7 @@ class _TasksScreenState extends State<TasksScreen> {
     setState(() {
       _tasks.removeWhere((TaskItem t) => t.id == task.id);
     });
+    _persistTasks();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -183,6 +191,7 @@ class _TasksScreenState extends State<TasksScreen> {
               final int safeIndex = removedIndex.clamp(0, _tasks.length);
               _tasks.insert(safeIndex, task);
             });
+            _persistTasks();
           },
         ),
       ),
@@ -193,6 +202,7 @@ class _TasksScreenState extends State<TasksScreen> {
     setState(() {
       _tasks.removeWhere((TaskItem task) => task.status == TaskStatus.done);
     });
+    _persistTasks();
   }
 
   Color _statusColor(TaskStatus status) {
@@ -218,7 +228,13 @@ class _TasksScreenState extends State<TasksScreen> {
         Navigator.pop(context, _tasksForResult());
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
           title: const Text(
             'My Tasks',
             style: TextStyle(fontFamily: 'Pacifico'),
@@ -262,7 +278,7 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 72, 16, 16),
               child: Column(
                 children: <Widget>[
                   _buildSummary(),
@@ -304,34 +320,38 @@ class _TasksScreenState extends State<TasksScreen> {
                   _buildFilterChips(),
                   const SizedBox(height: 12),
                   Expanded(
-                    child: visibleTasks.isEmpty
-                        ? _buildEmptyState()
-                        : ListView.separated(
-                            itemCount: visibleTasks.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 10),
-                            itemBuilder: (BuildContext context, int index) {
-                              final TaskItem task = visibleTasks[index];
-                              return Dismissible(
-                                key: ValueKey<String>(task.id),
-                                direction: DismissDirection.endToStart,
-                                onDismissed: (_) => _deleteTask(task),
-                                background: Container(
-                                  padding: const EdgeInsets.only(right: 20),
-                                  alignment: Alignment.centerRight,
-                                  decoration: BoxDecoration(
-                                    color: Colors.redAccent,
-                                    borderRadius: BorderRadius.circular(16),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 260),
+                      child: visibleTasks.isEmpty
+                          ? _buildEmptyState()
+                          : ListView.separated(
+                              key: ValueKey<int>(visibleTasks.length),
+                              itemCount: visibleTasks.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 10),
+                              itemBuilder: (BuildContext context, int index) {
+                                final TaskItem task = visibleTasks[index];
+                                return Dismissible(
+                                  key: ValueKey<String>(task.id),
+                                  direction: DismissDirection.endToStart,
+                                  onDismissed: (_) => _deleteTask(task),
+                                  background: Container(
+                                    padding: const EdgeInsets.only(right: 20),
+                                    alignment: Alignment.centerRight,
+                                    decoration: BoxDecoration(
+                                      color: Colors.redAccent,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: const Icon(
+                                      Icons.delete,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                  child: const Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                child: _buildTaskCard(task),
-                              );
-                            },
-                          ),
+                                  child: _buildTaskCard(task),
+                                );
+                              },
+                            ),
+                    ),
                   ),
                 ],
               ),
@@ -426,7 +446,8 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Widget _buildTaskCard(TaskItem task) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 260),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         // ignore: deprecated_member_use
@@ -522,6 +543,7 @@ class _TasksScreenState extends State<TasksScreen> {
 
     return Center(
       child: Container(
+        key: const ValueKey<String>('empty-state'),
         width: double.infinity,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(

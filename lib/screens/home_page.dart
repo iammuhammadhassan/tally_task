@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tally_task/models/task_model.dart';
 import 'package:tally_task/screens/counter.dart';
 import 'package:tally_task/screens/tasks_screen.dart';
+import 'package:tally_task/services/task_storage.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -12,10 +13,38 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   List<TaskItem> _tasks = <TaskItem>[];
+  bool _isLoadingTasks = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks();
+  }
+
+  Future<void> _loadTasks() async {
+    final List<TaskItem> storedTasks = await TaskStorage.loadTasks();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _tasks = storedTasks;
+      _isLoadingTasks = false;
+    });
+  }
+
+  Future<void> _saveTasks() async {
+    await TaskStorage.saveTasks(_tasks);
+  }
 
   int get _pendingCount {
     return _tasks
-        .where((TaskItem task) => task.status != TaskStatus.done)
+        .where((TaskItem task) => task.status == TaskStatus.pending)
+        .length;
+  }
+
+  int get _urgentCount {
+    return _tasks
+        .where((TaskItem task) => task.status == TaskStatus.urgent)
         .length;
   }
 
@@ -40,6 +69,16 @@ class _HomepageState extends State<Homepage> {
     return 70 + (_progressValue * 40);
   }
 
+  Color get _progressColor {
+    if (_progressValue < 0.4) {
+      return const Color.fromARGB(255, 244, 67, 54);
+    }
+    if (_progressValue < 0.75) {
+      return const Color.fromARGB(255, 255, 193, 7);
+    }
+    return const Color.fromARGB(255, 76, 175, 80);
+  }
+
   Future<void> _openTasks() async {
     final List<TaskItem>? updatedTasks = await Navigator.push<List<TaskItem>>(
       context,
@@ -55,6 +94,7 @@ class _HomepageState extends State<Homepage> {
     setState(() {
       _tasks = updatedTasks;
     });
+    await _saveTasks();
   }
 
   @override
@@ -78,184 +118,286 @@ class _HomepageState extends State<Homepage> {
         ),
 
         child: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                "Welcome to Tally Task",
-                style: TextStyle(
-                  fontFamily: 'Pacifico',
-                  color: const Color.fromARGB(255, 163, 214, 248),
-                  fontSize: 35,
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20.0),
-                margin: const EdgeInsets.symmetric(horizontal: 20.0),
-                decoration: BoxDecoration(
-                  // ignore: deprecated_member_use
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white24),
-                ),
-                child: Column(
+          child: _isLoadingTasks
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0, end: 1),
+                      duration: const Duration(milliseconds: 700),
+                      builder:
+                          (BuildContext context, double value, Widget? child) {
+                            return Opacity(
+                              opacity: value,
+                              child: Transform.translate(
+                                offset: Offset(0, 20 * (1 - value)),
+                                child: child,
+                              ),
+                            );
+                          },
+                      child: Text(
+                        'Welcome to Tally Task',
+                        style: TextStyle(
+                          fontFamily: 'Pacifico',
+                          color: const Color.fromARGB(255, 163, 214, 248),
+                          fontSize: 35,
+                        ),
+                      ),
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 450),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20.0),
+                      margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                      decoration: BoxDecoration(
+                        // ignore: deprecated_member_use
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: _urgentCount > 0
+                              ? const Color.fromARGB(255, 255, 90, 90)
+                              : Colors.white24,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'Tasks Added: ${_tasks.length}',
-                                style: TextStyle(
-                                  fontFamily: 'Noto2',
-                                  color: Colors.white,
-                                  fontSize: 16,
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Tasks Added: ${_tasks.length}',
+                                      style: TextStyle(
+                                        fontFamily: 'Noto2',
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Task Pending: $_pendingCount',
+                                      style: TextStyle(
+                                        fontFamily: 'Noto2',
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Task Urgent: $_urgentCount',
+                                      style: TextStyle(
+                                        fontFamily: 'Noto2',
+                                        color: _urgentCount > 0
+                                            ? const Color.fromARGB(
+                                                255,
+                                                255,
+                                                132,
+                                                132,
+                                              )
+                                            : Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Task Completed: $_completedCount',
+                                      style: TextStyle(
+                                        fontFamily: 'Noto2',
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Weekly Progress: $_progressPercent%',
+                                      style: TextStyle(
+                                        fontFamily: 'Noto2',
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              Text(
-                                'Task Pending: $_pendingCount',
-                                style: TextStyle(
-                                  fontFamily: 'Noto2',
-                                  color: Colors.white,
-                                  fontSize: 16,
+                              TweenAnimationBuilder<double>(
+                                tween: Tween<double>(
+                                  begin: 0,
+                                  end: _progressValue,
                                 ),
-                              ),
-
-                              Text(
-                                'Task Completed: $_completedCount',
-                                style: TextStyle(
-                                  fontFamily: 'Noto2',
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              Text(
-                                'Weekly Progress: $_progressPercent%',
-                                style: TextStyle(
-                                  fontFamily: 'Noto2',
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
+                                duration: const Duration(milliseconds: 550),
+                                builder:
+                                    (
+                                      BuildContext context,
+                                      double animatedValue,
+                                      _,
+                                    ) {
+                                      return Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          AnimatedContainer(
+                                            duration: const Duration(
+                                              milliseconds: 450,
+                                            ),
+                                            width: _progressCircleSize,
+                                            height: _progressCircleSize,
+                                            child: CircularProgressIndicator(
+                                              color: _progressColor,
+                                              value: animatedValue,
+                                              strokeWidth: 12,
+                                              backgroundColor: Colors.white24,
+                                            ),
+                                          ),
+                                          AnimatedSwitcher(
+                                            duration: const Duration(
+                                              milliseconds: 250,
+                                            ),
+                                            child: Text(
+                                              '$_progressPercent%',
+                                              key: ValueKey<int>(
+                                                _progressPercent,
+                                              ),
+                                              style: TextStyle(
+                                                fontFamily: 'Noto2',
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
                               ),
                             ],
                           ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TweenAnimationBuilder<double>(
+                          tween: Tween<double>(begin: 0.92, end: 1),
+                          duration: const Duration(milliseconds: 420),
+                          builder:
+                              (
+                                BuildContext context,
+                                double value,
+                                Widget? child,
+                              ) {
+                                return Transform.scale(
+                                  scale: value,
+                                  child: child,
+                                );
+                              },
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _openTasks();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(
+                                255,
+                                163,
+                                214,
+                                248,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 25,
+                                vertical: 20,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image(
+                                  image: AssetImage('assets/task.png'),
+                                  width: 80,
+                                  height: 80,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'My Tasks',
+                                  style: TextStyle(
+                                    fontFamily: 'Noto2',
+                                    color: const Color.fromARGB(255, 70, 0, 52),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        Stack(
-                          alignment:
-                              Alignment.center, // Keeps the text in the middle
-                          children: [
-                            SizedBox(
-                              width: _progressCircleSize,
-                              height: _progressCircleSize,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                value: _progressValue,
-                                strokeWidth: 12,
+                        TweenAnimationBuilder<double>(
+                          tween: Tween<double>(begin: 0.92, end: 1),
+                          duration: const Duration(milliseconds: 520),
+                          builder:
+                              (
+                                BuildContext context,
+                                double value,
+                                Widget? child,
+                              ) {
+                                return Transform.scale(
+                                  scale: value,
+                                  child: child,
+                                );
+                              },
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const Counter(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(
+                                255,
+                                163,
+                                214,
+                                248,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 25,
+                                vertical: 20,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
                               ),
                             ),
-                            Text(
-                              '$_progressPercent%',
-                              style: TextStyle(
-                                fontFamily: 'Noto2',
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image(
+                                  image: AssetImage('assets/counter.png'),
+                                  width: 80,
+                                  height: 80,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Counter',
+                                  style: TextStyle(
+                                    fontFamily: 'Noto2',
+                                    color: const Color.fromARGB(255, 70, 0, 52),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      _openTasks();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 163, 214, 248),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 25,
-                        vertical: 20,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image(
-                          image: AssetImage('assets/task.png'),
-                          width: 80,
-                          height: 80,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "My Tasks",
-                          style: TextStyle(
-                            fontFamily: 'Noto2',
-                            color: const Color.fromARGB(255, 70, 0, 52),
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Counter(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 163, 214, 248),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 25,
-                        vertical: 20,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image(
-                          image: AssetImage('assets/counter.png'),
-                          width: 80,
-                          height: 80,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Counter",
-                          style: TextStyle(
-                            fontFamily: 'Noto2',
-                            color: const Color.fromARGB(255, 70, 0, 52),
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
         ),
       ),
     );
