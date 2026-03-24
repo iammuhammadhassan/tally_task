@@ -11,9 +11,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tally_task/main.dart';
 
 void main() {
-  testWidgets('Login screen smoke test', (WidgetTester tester) async {
+  testWidgets('Splash transitions to login screen', (
+    WidgetTester tester,
+  ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
+
+    expect(find.text('Tally Task'), findsOneWidget);
+    expect(find.text('Count What Matters'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
 
     expect(find.text('Tally Task'), findsOneWidget);
     expect(find.text('Login'), findsOneWidget);

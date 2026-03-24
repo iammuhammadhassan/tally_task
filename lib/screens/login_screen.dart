@@ -15,6 +15,36 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscureText = true;
+  bool _isLoggingIn = false;
+
+  Future<void> _handleLogin() async {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    setState(() {
+      _isLoggingIn = true;
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 450));
+
+    if (!mounted) {
+      return;
+    }
+
+    await Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Homepage()),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isLoggingIn = false;
+    });
+  }
 
   @override
   void dispose() {
@@ -208,32 +238,40 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 40),
                       Center(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 50,
-                              vertical: 15,
+                        child: AnimatedScale(
+                          duration: const Duration(milliseconds: 220),
+                          scale: _isLoggingIn ? 0.95 : 1,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 50,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const Homepage(),
-                                ),
-                              );
-                            }
-                          },
-                          child: Text(
-                            'Login',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontFamily: 'Noto2',
-                              fontWeight: FontWeight.bold,
+                            onPressed: _isLoggingIn ? null : _handleLogin,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: _isLoggingIn
+                                  ? const SizedBox(
+                                      key: ValueKey<String>('login-loading'),
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Login',
+                                      key: ValueKey<String>('login-text'),
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontFamily: 'Noto2',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                             ),
                           ),
                         ),

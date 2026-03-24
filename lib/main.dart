@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tally_task/screens/login_screen.dart';
+import 'package:tally_task/screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
           },
         ),
       ),
-      home: const LoginScreen(),
+      home: const SplashScreen(),
     );
   }
 }
