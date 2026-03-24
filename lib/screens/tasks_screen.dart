@@ -237,7 +237,12 @@ class _TasksScreenState extends State<TasksScreen> {
           surfaceTintColor: Colors.transparent,
           title: const Text(
             'My Tasks',
-            style: TextStyle(fontFamily: 'Pacifico'),
+            style: TextStyle(
+              fontFamily: 'Noto2',
+              fontWeight: FontWeight.bold,
+              fontSize: 40,
+              color: Color.fromARGB(255, 163, 214, 248),
+            ),
           ),
           centerTitle: true,
           leading: IconButton(
@@ -249,6 +254,10 @@ class _TasksScreenState extends State<TasksScreen> {
           actions: <Widget>[
             IconButton(
               tooltip: 'Clear completed tasks',
+              style: IconButton.styleFrom(
+                foregroundColor: Colors.white,
+                disabledForegroundColor: Colors.white54,
+              ),
               onPressed: _countByStatus(TaskStatus.done) == 0
                   ? null
                   : _clearDoneTasks,
@@ -434,7 +443,9 @@ class _TasksScreenState extends State<TasksScreen> {
           selected: selected,
           selectedColor: const Color.fromARGB(255, 163, 214, 248),
           // ignore: deprecated_member_use
-          backgroundColor: Colors.white.withOpacity(0.15),
+          backgroundColor: Colors.black.withOpacity(0.25),
+          side: const BorderSide(color: Colors.white38),
+          showCheckmark: false,
           onSelected: (_) {
             setState(() {
               _selectedFilter = option.status;
