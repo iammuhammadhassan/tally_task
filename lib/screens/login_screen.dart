@@ -26,7 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoggingIn = true;
     });
 
-    await Future<void>.delayed(const Duration(milliseconds: 450));
+    // Wait for the drop animation to complete (1500ms total)
+    await Future<void>.delayed(const Duration(milliseconds: 1500));
 
     if (!mounted) {
       return;
@@ -238,9 +239,42 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 40),
                       Center(
-                        child: AnimatedScale(
-                          duration: const Duration(milliseconds: 220),
-                          scale: _isLoggingIn ? 0.95 : 1,
+                        child: TweenAnimationBuilder<double>(
+                          tween: Tween<double>(
+                            begin: 0,
+                            end: _isLoggingIn ? 1 : 0,
+                          ),
+                          duration: const Duration(milliseconds: 1500),
+                          builder:
+                              (
+                                BuildContext context,
+                                double value,
+                                Widget? child,
+                              ) {
+                                // Phase 1: Shrink (0 to 0.3)
+                                final double shrinkPhase = (value * 3).clamp(
+                                  0,
+                                  1,
+                                );
+                                final double scale = 1 - (shrinkPhase * 0.7);
+
+                                // Phase 2: Drop (0.2 to 1) - starts after slight delay
+                                final double dropPhase = ((value - 0.2) * 1.25)
+                                    .clamp(0, 1);
+                                final double dropOffset = dropPhase * 300;
+                                final double opacity = 1 - dropPhase;
+
+                                return Transform.scale(
+                                  scale: scale,
+                                  child: Transform.translate(
+                                    offset: Offset(0, dropOffset),
+                                    child: Opacity(
+                                      opacity: opacity.clamp(0, 1),
+                                      child: child,
+                                    ),
+                                  ),
+                                );
+                              },
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(

@@ -57,6 +57,10 @@ void main() {
     await tester.drag(find.text('Buy milk'), const Offset(-600, 0));
     await tester.pumpAndSettle();
 
+    expect(find.text('Delete Task'), findsOneWidget);
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'));
+    await tester.pumpAndSettle();
+
     expect(find.text('Buy milk'), findsNothing);
     expect(find.textContaining('Removed "Buy milk"'), findsOneWidget);
   });

@@ -168,6 +168,125 @@ class _TasksScreenState extends State<TasksScreen> {
     );
   }
 
+  Future<void> _showEditTaskDialog(TaskItem task) async {
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    final TextEditingController titleController = TextEditingController(
+      text: task.title,
+    );
+    final TextEditingController descriptionController = TextEditingController(
+      text: task.description,
+    );
+    TaskStatus selectedStatus = task.status;
+
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Task', style: TextStyle(fontFamily: 'Noto2')),
+          content: StatefulBuilder(
+            builder:
+                (
+                  BuildContext context,
+                  void Function(void Function()) setLocalState,
+                ) {
+                  return Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        TextFormField(
+                          controller: titleController,
+                          decoration: const InputDecoration(
+                            labelText: 'Task title',
+                            labelStyle: TextStyle(fontFamily: 'Noto2'),
+                          ),
+                          validator: (String? value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter a task title';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: descriptionController,
+                          maxLines: 2,
+                          decoration: const InputDecoration(
+                            labelText: 'Description (optional)',
+                            labelStyle: TextStyle(fontFamily: 'Noto2'),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<TaskStatus>(
+                          // ignore: deprecated_member_use
+                          value: selectedStatus,
+                          decoration: const InputDecoration(
+                            labelText: 'Status',
+                            labelStyle: TextStyle(fontFamily: 'Noto2'),
+                          ),
+                          items: TaskStatus.values
+                              .map(
+                                (TaskStatus status) =>
+                                    DropdownMenuItem<TaskStatus>(
+                                      value: status,
+                                      child: Text(
+                                        status.label,
+                                        style: const TextStyle(
+                                          fontFamily: 'Noto2',
+                                        ),
+                                      ),
+                                    ),
+                              )
+                              .toList(),
+                          onChanged: (TaskStatus? value) {
+                            if (value != null) {
+                              setLocalState(() {
+                                selectedStatus = value;
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  setState(() {
+                    final int index = _tasks.indexWhere(
+                      (TaskItem item) => item.id == task.id,
+                    );
+                    if (index != -1) {
+                      _tasks[index] = TaskItem(
+                        id: task.id,
+                        title: titleController.text.trim(),
+                        description: descriptionController.text.trim(),
+                        status: selectedStatus,
+                        createdAt: task.createdAt,
+                      );
+                    }
+                  });
+                  _persistTasks();
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _updateTaskStatus(TaskItem task, TaskStatus newStatus) {
     setState(() {
       task.status = newStatus;
@@ -197,6 +316,48 @@ class _TasksScreenState extends State<TasksScreen> {
         ),
       ),
     );
+  }
+
+  Future<bool> _confirmDeleteTask(TaskItem task) async {
+    final bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Delete Task',
+            style: TextStyle(fontFamily: 'Noto2'),
+          ),
+          content: Text(
+            'Are you sure you want to delete "${task.title}"?',
+            style: const TextStyle(fontFamily: 'Noto2'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return shouldDelete ?? false;
+  }
+
+  Future<void> _confirmAndDeleteTask(TaskItem task) async {
+    final bool shouldDelete = await _confirmDeleteTask(task);
+    if (!shouldDelete) {
+      return;
+    }
+    _deleteTask(task);
   }
 
   void _clearDoneTasks() {
@@ -347,6 +508,9 @@ class _TasksScreenState extends State<TasksScreen> {
                                   return Dismissible(
                                     key: ValueKey<String>(task.id),
                                     direction: DismissDirection.endToStart,
+                                    confirmDismiss: (_) async {
+                                      return _confirmDeleteTask(task);
+                                    },
                                     onDismissed: (_) => _deleteTask(task),
                                     background: Container(
                                       padding: const EdgeInsets.only(right: 20),
@@ -493,9 +657,6 @@ class _TasksScreenState extends State<TasksScreen> {
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Noto2',
-                    decoration: task.status == TaskStatus.done
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none,
                   ),
                 ),
                 if (task.description.isNotEmpty) ...<Widget>[
@@ -530,20 +691,51 @@ class _TasksScreenState extends State<TasksScreen> {
               ],
             ),
           ),
-          PopupMenuButton<TaskStatus>(
+          PopupMenuButton<_TaskAction>(
             iconColor: Colors.white,
-            onSelected: (TaskStatus status) {
-              _updateTaskStatus(task, status);
+            onSelected: (_TaskAction action) {
+              switch (action) {
+                case _TaskAction.edit:
+                  _showEditTaskDialog(task);
+                  break;
+                case _TaskAction.delete:
+                  _confirmAndDeleteTask(task);
+                  break;
+                case _TaskAction.markPending:
+                  _updateTaskStatus(task, TaskStatus.pending);
+                  break;
+                case _TaskAction.markUrgent:
+                  _updateTaskStatus(task, TaskStatus.urgent);
+                  break;
+                case _TaskAction.markDone:
+                  _updateTaskStatus(task, TaskStatus.done);
+                  break;
+              }
             },
             itemBuilder: (BuildContext context) {
-              return TaskStatus.values
-                  .map(
-                    (TaskStatus status) => PopupMenuItem<TaskStatus>(
-                      value: status,
-                      child: Text(status.label),
-                    ),
-                  )
-                  .toList();
+              return <PopupMenuEntry<_TaskAction>>[
+                const PopupMenuItem<_TaskAction>(
+                  value: _TaskAction.edit,
+                  child: Text('Edit Task'),
+                ),
+                const PopupMenuItem<_TaskAction>(
+                  value: _TaskAction.delete,
+                  child: Text('Delete Task'),
+                ),
+                const PopupMenuDivider(),
+                const PopupMenuItem<_TaskAction>(
+                  value: _TaskAction.markPending,
+                  child: Text('Mark as Pending'),
+                ),
+                const PopupMenuItem<_TaskAction>(
+                  value: _TaskAction.markUrgent,
+                  child: Text('Mark as Urgent'),
+                ),
+                const PopupMenuItem<_TaskAction>(
+                  value: _TaskAction.markDone,
+                  child: Text('Mark as Done'),
+                ),
+              ];
             },
           ),
         ],
@@ -604,3 +796,5 @@ class _FilterOption {
   final String label;
   final TaskStatus? status;
 }
+
+enum _TaskAction { edit, delete, markPending, markUrgent, markDone }
