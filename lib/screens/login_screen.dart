@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoggingIn = true;
     });
 
-    final bool isValidUser = await AuthStorage.validateLogin(
+    final bool isValidUser = await AuthStorage.loginUser(
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );

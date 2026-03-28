@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:tally_task/screens/home_page.dart';
 import 'package:tally_task/screens/login_screen.dart';
+import 'package:tally_task/services/auth_storage.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -25,13 +27,20 @@ class _SplashScreenState extends State<SplashScreen> {
       });
     });
 
-    Timer(const Duration(milliseconds: 1900), () {
+    Timer(const Duration(milliseconds: 1900), () async {
+      if (!mounted) {
+        return;
+      }
+      final bool isLoggedIn = await AuthStorage.isLoggedIn();
       if (!mounted) {
         return;
       }
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(
+          builder: (BuildContext context) =>
+              isLoggedIn ? const Homepage() : const LoginScreen(),
+        ),
       );
     });
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tally_task/models/task_model.dart';
 import 'package:tally_task/screens/counter.dart';
+import 'package:tally_task/screens/login_screen.dart';
 import 'package:tally_task/screens/tasks_screen.dart';
+import 'package:tally_task/services/auth_storage.dart';
 import 'package:tally_task/services/task_storage.dart';
 
 class Homepage extends StatefulWidget {
@@ -14,11 +16,23 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   List<TaskItem> _tasks = <TaskItem>[];
   bool _isLoadingTasks = true;
+  String _userName = 'there';
 
   @override
   void initState() {
     super.initState();
     _loadTasks();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final String? name = await AuthStorage.currentUserName();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _userName = (name == null || name.trim().isEmpty) ? 'there' : name;
+    });
   }
 
   Future<void> _loadTasks() async {
@@ -97,6 +111,52 @@ class _HomepageState extends State<Homepage> {
     await _saveTasks();
   }
 
+  Future<void> _logout() async {
+    final bool? shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Logout', style: TextStyle(fontFamily: 'Noto2')),
+          content: const Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(fontFamily: 'Noto2'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout != true) {
+      return;
+    }
+
+    await AuthStorage.logout();
+    if (!mounted) {
+      return;
+    }
+
+    await Navigator.pushAndRemoveUntil<void>(
+      context,
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => const LoginScreen(),
+      ),
+      (Route<dynamic> route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,25 +185,87 @@ class _HomepageState extends State<Homepage> {
               : Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    TweenAnimationBuilder<double>(
-                      tween: Tween<double>(begin: 0, end: 1),
-                      duration: const Duration(milliseconds: 700),
-                      builder:
-                          (BuildContext context, double value, Widget? child) {
-                            return Opacity(
-                              opacity: value,
-                              child: Transform.translate(
-                                offset: Offset(0, 20 * (1 - value)),
-                                child: child,
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8, top: 0),
+                        child: ElevatedButton.icon(
+                          onPressed: _logout,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              163,
+                              214,
+                              248,
+                            ),
+                            foregroundColor: const Color.fromARGB(
+                              255,
+                              70,
+                              0,
+                              52,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          icon: const Icon(Icons.logout),
+                          label: const Text(
+                            'Logout',
+                            style: TextStyle(
+                              fontFamily: 'Noto2',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0, end: 1),
+                        duration: const Duration(milliseconds: 700),
+                        builder:
+                            (
+                              BuildContext context,
+                              double value,
+                              Widget? child,
+                            ) {
+                              return Opacity(
+                                opacity: value,
+                                child: Transform.translate(
+                                  offset: Offset(0, 20 * (1 - value)),
+                                  child: child,
+                                ),
+                              );
+                            },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            const Text(
+                              'Welcome,',
+                              style: TextStyle(
+                                fontFamily: 'Pacifico',
+                                color: Color.fromARGB(255, 163, 214, 248),
+                                fontSize: 32,
                               ),
-                            );
-                          },
-                      child: Text(
-                        'Welcome to Tally Task',
-                        style: TextStyle(
-                          fontFamily: 'Pacifico',
-                          color: const Color.fromARGB(255, 163, 214, 248),
-                          fontSize: 35,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _userName,
+                              style: const TextStyle(
+                                fontFamily: 'Pacifico',
+                                color: Color.fromARGB(255, 163, 214, 248),
+                                fontSize: 32,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
                     ),

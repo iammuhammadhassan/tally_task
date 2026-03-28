@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthStorage {
   static const String _usersKey = 'auth_users_v1';
+  static const String _currentUserEmailKey = 'current_user_email_v1';
 
   static Future<List<Map<String, dynamic>>> _loadRawUsers() async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -68,5 +69,52 @@ class AuthStorage {
       final String storedPassword = user['password'] as String? ?? '';
       return storedEmail == normalizedEmail && storedPassword == password;
     });
+  }
+
+  static Future<bool> loginUser({
+    required String email,
+    required String password,
+  }) async {
+    final bool isValid = await validateLogin(email: email, password: password);
+    if (!isValid) {
+      return false;
+    }
+
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setString(
+      _currentUserEmailKey,
+      email.trim().toLowerCase(),
+    );
+    return true;
+  }
+
+  static Future<void> logout() async {
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.remove(_currentUserEmailKey);
+  }
+
+  static Future<bool> isLoggedIn() async {
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    final String? email = preferences.getString(_currentUserEmailKey);
+    return email != null && email.isNotEmpty;
+  }
+
+  static Future<String?> currentUserName() async {
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    final String? currentEmail = preferences.getString(_currentUserEmailKey);
+    if (currentEmail == null || currentEmail.isEmpty) {
+      return null;
+    }
+
+    final List<Map<String, dynamic>> users = await _loadRawUsers();
+    for (final Map<String, dynamic> user in users) {
+      final String email = (user['email'] as String?)?.toLowerCase() ?? '';
+      if (email == currentEmail.toLowerCase()) {
+        final String name = (user['name'] as String?)?.trim() ?? '';
+        return name.isEmpty ? null : name;
+      }
+    }
+
+    return null;
   }
 }
