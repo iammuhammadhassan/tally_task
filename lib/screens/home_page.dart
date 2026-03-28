@@ -248,7 +248,7 @@ class _HomepageState extends State<Homepage> {
                             const Text(
                               'Welcome,',
                               style: TextStyle(
-                                fontFamily: 'Pacifico',
+                                fontFamily: 'Noto2',
                                 color: Color.fromARGB(255, 163, 214, 248),
                                 fontSize: 32,
                               ),
@@ -257,7 +257,7 @@ class _HomepageState extends State<Homepage> {
                             Text(
                               _userName,
                               style: const TextStyle(
-                                fontFamily: 'Pacifico',
+                                fontFamily: 'Noto2',
                                 color: Color.fromARGB(255, 163, 214, 248),
                                 fontSize: 32,
                               ),
