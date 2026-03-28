@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:tally_task/screens/home_page.dart';
+import 'package:tally_task/screens/signup_screen.dart';
+import 'package:tally_task/services/auth_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,6 +27,31 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoggingIn = true;
     });
+
+    final bool isValidUser = await AuthStorage.validateLogin(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (!isValidUser) {
+      setState(() {
+        _isLoggingIn = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Invalid email or password. Please sign up first.',
+            style: TextStyle(fontFamily: 'Noto2'),
+          ),
+          backgroundColor: Color.fromARGB(255, 170, 35, 35),
+        ),
+      );
+      return;
+    }
 
     // Wait for the drop animation to complete (1500ms total)
     await Future<void>.delayed(const Duration(milliseconds: 1500));
@@ -322,7 +349,52 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           TextButton(
                             onPressed: () {
-                              // Navigate to registration screen
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder<void>(
+                                  transitionDuration: const Duration(
+                                    milliseconds: 420,
+                                  ),
+                                  reverseTransitionDuration: const Duration(
+                                    milliseconds: 300,
+                                  ),
+                                  pageBuilder:
+                                      (
+                                        BuildContext context,
+                                        Animation<double> animation,
+                                        Animation<double> secondaryAnimation,
+                                      ) {
+                                        return const SignupScreen();
+                                      },
+                                  transitionsBuilder:
+                                      (
+                                        BuildContext context,
+                                        Animation<double> animation,
+                                        Animation<double> secondaryAnimation,
+                                        Widget child,
+                                      ) {
+                                        return FadeTransition(
+                                          opacity: CurvedAnimation(
+                                            parent: animation,
+                                            curve: Curves.easeOut,
+                                          ),
+                                          child: SlideTransition(
+                                            position:
+                                                Tween<Offset>(
+                                                  begin: const Offset(0.12, 0),
+                                                  end: Offset.zero,
+                                                ).animate(
+                                                  CurvedAnimation(
+                                                    parent: animation,
+                                                    curve: Curves.easeOutCubic,
+                                                  ),
+                                                ),
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                ),
+                              );
                             },
                             child: Text(
                               'Sign Up',
